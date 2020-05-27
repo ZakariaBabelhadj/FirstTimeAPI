@@ -2,9 +2,14 @@ $(document).ready(function(){
 
     $.getJSON('/todos',printPosts);
     $('form').submit(function(e){
-        e.preventDefault();
+       // e.preventDefault();
         $.post('/todos',{todo: $('#todo').val()}, printPosts);
-        this.reset();
+        $.ajax({
+            type: 'Post',
+            success:function(){
+                location.reload();
+            }
+        });
 
     });
 });
@@ -17,7 +22,9 @@ function printPosts(todos){
         $.ajax({
             url: '/todos/' + $(this).text(),
             type: 'DELETE',
-            success: printPosts
+            success: function(){
+                location.reload();
+            }
         });
     });
 }

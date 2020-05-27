@@ -1,11 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const app = express();
+mongoose.connect('mongodb+srv://zaki:BestZaki2001@cluster0-zd364.mongodb.net/test?retryWrites=true&w=majority');
 
-let todoList = [{todo:'PlayLeagueOfLegends'}, 
-                {todo:'CodeNodeJs'}, 
-                {todo:'TrollForTheRestOfTheDay'}];
+let todoSchema = new mongoose.Schema({
+    todo: String
+});
+
+let Todo = mongoose.model('Todo', todoSchema);
+
+//let todoList = [{todo:'PlayLeagueOfLegends'}, {todo:'CodeNodeJs'}, {todo:'TrollForTheRestOfTheDay'}];
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
@@ -20,19 +26,25 @@ app.use(express.static('./public'));
 app.use(cors());
 
 app.get('/todos',function(req, res){
-    res.json(todoList);
+    Todo.find({}, function(err,data){
+        if (err) throw err;
+        res.json(data);
+    });
+    
 });
 
 app.post('/todos',function(req, res){
-    todoList.push(req.body);
-    res.json(todoList);
+    Todo(req.body).save(function(err, data){
+        if (err) throw err;
+        res.json(data);
+    })
 });
 
 app.delete('/todos/:todo',function(req,res){
-    todoList = todoList.filter(function(def){
-        return def.todo.toLowerCase() !== req.params.todo.toLowerCase();
+    Todo.find({todo: req.params.todo}).remove(function(err,data){
+        if(err) throw err;
+        res.json(data);
     });
-    res.json(todoList);
 });
 app.listen(3000);
 
